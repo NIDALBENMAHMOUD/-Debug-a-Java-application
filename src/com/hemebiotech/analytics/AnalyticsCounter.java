@@ -1,43 +1,95 @@
 package com.hemebiotech.analytics;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
+/**
+ * @author Nidal Ben Mahmoud 
+ * get a list of symptoms. put the list in alphabetical order.
+ * count the occurrences of each symptom in the list.
+ * save the names of the symptoms, with the count in the file.
+ */
 public class AnalyticsCounter {
-	private static int headacheCount = 0;	// initialize to 0
-	private static int rashCount = 0;		// initialize to 0
-	private static int pupilCount = 0;		// initialize to 0
-	
-	public static void main(String args[]) throws Exception {
-		// first get input
-		BufferedReader reader = new BufferedReader (new FileReader("symptoms.txt"));
-		String line = reader.readLine();
 
-		int i = 0;	// set i to 0
-		int headCount = 0;	// counts headaches
-		while (line != null) {
-			i++;	// increment i
-			System.out.println("symptom from file: " + line);
-			if (line.equals("headache")) {
-				headCount++;
-				System.out.println("number of headaches: " + headCount);
-			}
-			else if (line.equals("rush")) {
-				rashCount++;
-			}
-			else if (line.contains("pupils")) {
-				pupilCount++;
-			}
+	/**
+	 * Method Reading: get a list of symptoms
+	 * 
+	 * @param dataInput parameter of type class ReadSymptomDataFromFile to use the
+	 *                  GetSymptoms()
+	 * @return An instance of the ReadSymptomDataFromFile class to import this
+	 *         GetSymptoms () method.
+	 * @see ReadSymptomDataFromFile
+	 */
 
-			line = reader.readLine();	// get another symptom
+	public List<String> Reading(ISymptomReader dataInput) {
+		return dataInput.GetSymptoms();
+	}
+
+	/**
+	 * Method Sorting: put the list in alphabetical order count the occurrences of
+	 * each symptom in the list.
+	 * 
+	 * @param list table type of list of symptoms not ordered with duplicates
+	 * @return mapSorted: TreeMap including symptoms in alphabetical order and count
+	 *         occurrences.
+	 */
+	public TreeMap<String, Integer> Sorting(List<String> list) {
+		Set<String> noDuplicateSet = new HashSet<String>(list); // Delete duplicates
+		List<String> noDuplicateList = new ArrayList<String>(noDuplicateSet); // new list without duplicates
+
+		Map<String, Integer> symptomsOccurrence = new HashMap<String, Integer>(); // Temporary Map to get (symptoms,
+																					// occurrence)
+
+		for (String symptom : noDuplicateList) { // fill the Map with symptoms(key) and occurrences(value)
+			symptomsOccurrence.put(symptom, Collections.frequency(list, symptom));
 		}
-		
-		// next generate output
-		FileWriter writer = new FileWriter ("result.out");
-		writer.write("headache: " + headacheCount + "\n");
-		writer.write("rash: " + rashCount + "\n");
-		writer.write("dialated pupils: " + pupilCount + "\n");
-		writer.close();
+
+		TreeMap<String, Integer> mapSorted = new TreeMap<String, Integer>(); // TreeMap to sort alphabetically
+		mapSorted.putAll(symptomsOccurrence); // fill the TreeMap with our temporary Map
+		return mapSorted;
+	}
+
+	/**
+	 * Method Saving: save the names of the symptoms, with the count in the file
+	 * 
+	 * @param map TreeMap allow to write in a file the result of the sorting()
+	 *            method.
+	 *            <p>
+	 *            If the file doesn't exist, a new file named "results.out" will be
+	 *            created.
+	 *            </p>
+	 */
+	public void saving(TreeMap<String, Integer> map) {
+
+		File results = new File("result.out");
+		// try with resources
+		try (BufferedWriter writer = new BufferedWriter(new FileWriter(results))) {
+
+			for (Map.Entry<String, Integer> entry : map.entrySet()) { // run the TreeMap and write each line into the
+																		// result.out
+
+				writer.write(entry.getKey() + " = " + entry.getValue());
+				writer.newLine();
+				writer.flush();
+
+			}
+
+		} catch (FileNotFoundException e) {
+			System.err.println("the file " + results + "  does not exist!");
+		} catch (IOException e) {
+			System.err.println("unable to write to file ! ");
+		}
+
 	}
 }
