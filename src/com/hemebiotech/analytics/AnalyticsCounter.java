@@ -25,11 +25,10 @@ public class AnalyticsCounter {
 	/**
 	 * Method Reading: get a list of symptoms
 	 * 
-	 * @param dataInput parameter of type class ReadSymptomDataFromFile to use the
+	 * @param dataInput parameter of type class ISymptomReader to use the
 	 *                  GetSymptoms()
-	 * @return An instance of the ReadSymptomDataFromFile class to import this
-	 *         GetSymptoms () method.
-	 * @see ReadSymptomDataFromFile
+	 * @return An instance of the ISymptomReader to import GetSymptoms () method.
+	 * @see ISymptomReader
 	 */
 
 	public List<String> Reading(ISymptomReader dataInput) {
@@ -77,7 +76,7 @@ public class AnalyticsCounter {
 		try (BufferedWriter writer = new BufferedWriter(new FileWriter(results))) {
 
 			for (Map.Entry<String, Integer> entry : map.entrySet()) { // run the TreeMap and write each line into the
-																		// result.out
+																	// result.out
 
 				writer.write(entry.getKey() + " = " + entry.getValue());
 				writer.newLine();
